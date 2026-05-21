@@ -24,13 +24,23 @@ const gsiAirPhoto = L.tileLayer(
   }
 );
 
+const naganoCsMap = L.tileLayer(
+  "https://tile.geospatial.jp/CS/VER2/{z}/{x}/{y}.png",
+  {
+    attribution:
+      '<a href="https://www.geospatial.jp/ckan/dataset/nagano-csmap">長野県CS立体図</a>',
+    maxZoom: 18
+  }
+);
+
 gsiStandard.addTo(map);
 
 L.control
   .layers(
     {
       "地理院標準地図": gsiStandard,
-      "地理院航空写真": gsiAirPhoto
+      "地理院航空写真": gsiAirPhoto,
+      "長野県CS立体図": naganoCsMap
     },
     {},
     {
