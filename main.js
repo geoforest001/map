@@ -3,9 +3,6 @@ const fallbackZoom = 11;
 const currentLocationZoom = 15;
 const gsiAttribution =
   '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
-const geotiffInput = document.getElementById("geotiff-file");
-const clearGeotiffButton = document.getElementById("clear-geotiff");
-const geotiffStatus = document.getElementById("geotiff-status");
 
 const map = L.map("map", {
   zoomControl: true
@@ -38,16 +35,42 @@ const naganoCsMap = L.tileLayer(
 
 gsiStandard.addTo(map);
 
+const FARM_PMTILES_URL = "https://geoforest001.github.io/ina_farm_test/data/%E8%BE%B2%E5%9C%B0%E3%82%BF%E3%82%A4%E3%83%AB.pmtiles";
+
+const farmTiles = protomapsL.leafletLayer({
+  url: FARM_PMTILES_URL,
+  maxDataZoom: 13,
+  paintRules: [
+    {
+      dataLayer: "農地筆ポリゴン2025",
+      symbolizer: new protomapsL.PolygonSymbolizer({
+        fill: "rgb(0,180,0)",
+        opacity: 0.5
+      })
+    },
+    {
+      dataLayer: "02パイプライン_Layer",
+      symbolizer: new protomapsL.LineSymbolizer({
+        color: "rgb(0,80,200)",
+        width: 2
+      })
+    }
+  ],
+  labelRules: []
+});
+farmTiles.addTo(map);
+
 const baseLayers = {
   "地理院標準地図": gsiStandard,
   "地理院航空写真": gsiAirPhoto,
   "長野県CS立体図": naganoCsMap
 };
 
-const overlays = {};
+const overlays = {
+  "伊那市農地タイル": farmTiles
+};
+
 let layerControl;
-let geotiffLayer;
-let geotiffLayerName;
 
 function renderLayerControl() {
   if (layerControl) {
@@ -62,36 +85,7 @@ function renderLayerControl() {
   layerControl.addTo(map);
 }
 
-function setStatus(message) {
-  geotiffStatus.textContent = message;
-}
-
-function setGeotiffButtonState() {
-  clearGeotiffButton.disabled = !geotiffLayer;
-}
-
-function clearGeotiffLayer() {
-  if (geotiffLayer) {
-    map.removeLayer(geotiffLayer);
-    geotiffLayer = undefined;
-  }
-
-  if (geotiffLayerName) {
-    delete overlays[geotiffLayerName];
-    geotiffLayerName = undefined;
-  }
-
-  if (geotiffInput) {
-    geotiffInput.value = "";
-  }
-
-  renderLayerControl();
-  setGeotiffButtonState();
-  setStatus("GeoTIFFを選ぶと、このブラウザ内だけで地図に重ねて表示します。");
-}
-
 renderLayerControl();
-setGeotiffButtonState();
 
 const marker = L.marker(fallbackLocation)
   .addTo(map)
@@ -117,58 +111,4 @@ if (navigator.geolocation) {
       timeout: 10000
     }
   );
-}
-
-if (geotiffInput) {
-  geotiffInput.addEventListener("change", async (event) => {
-    const [file] = event.target.files;
-
-    if (!file) {
-      return;
-    }
-
-    setStatus(`${file.name} を読み込み中です...`);
-
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const georaster = await parseGeoraster(arrayBuffer);
-
-      if (geotiffLayer) {
-        clearGeotiffLayer();
-      }
-
-      geotiffLayer = new GeoRasterLayer({
-        georaster,
-        opacity: 0.72,
-        resolution: 256
-      });
-
-      geotiffLayerName = `GeoTIFF: ${file.name}`;
-      overlays[geotiffLayerName] = geotiffLayer;
-
-      geotiffLayer.addTo(map);
-      renderLayerControl();
-      setGeotiffButtonState();
-
-      const bounds = geotiffLayer.getBounds();
-
-      if (bounds && bounds.isValid()) {
-        map.fitBounds(bounds, {
-          padding: [24, 24]
-        });
-      }
-
-      setStatus(`${file.name} を読み込みました。右上のパネルから表示のON/OFFも切り替えられます。`);
-    } catch (error) {
-      console.error(error);
-      clearGeotiffLayer();
-      setStatus("GeoTIFFの読み込みに失敗しました。GeoTIFF形式と座標系を確認してください。");
-    }
-  });
-}
-
-if (clearGeotiffButton) {
-  clearGeotiffButton.addEventListener("click", () => {
-    clearGeotiffLayer();
-  });
 }
