@@ -28,6 +28,10 @@ body {
   height: 100vh;
 }
 
+.grayscale-layer {
+  filter: grayscale(100%);
+}
+
 .toolbar {
   position: absolute;
   top: 16px;

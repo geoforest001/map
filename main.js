@@ -12,7 +12,8 @@ const gsiStandard = L.tileLayer(
   "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
   {
     attribution: gsiAttribution,
-    maxZoom: 18
+    maxZoom: 18,
+    className: "grayscale-layer"
   }
 );
 
