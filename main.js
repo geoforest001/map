@@ -35,10 +35,11 @@ const naganoCsMap = L.tileLayer(
 
 gsiStandard.addTo(map);
 
-const FARM_PMTILES_URL = "https://geoforest001.github.io/ina_farm_test/data/%E8%BE%B2%E5%9C%B0%E3%82%BF%E3%82%A4%E3%83%AB.pmtiles";
+const FARM_POLYGON_URL = "https://geoforest001.github.io/ina_farm_test/data/%E8%BE%B2%E5%9C%B0%E7%AD%86%E3%83%9D%E3%83%AA%E3%82%B4%E3%83%B3.pmtiles";
+const PIPELINE_URL = "https://geoforest001.github.io/ina_farm_test/data/%E3%83%91%E3%82%A4%E3%83%97%E3%83%A9%E3%82%A4%E3%83%B3.pmtiles";
 
-const farmTiles = protomapsL.leafletLayer({
-  url: FARM_PMTILES_URL,
+const farmPolygonTiles = protomapsL.leafletLayer({
+  url: FARM_POLYGON_URL,
   maxDataZoom: 13,
   paintRules: [
     {
@@ -47,7 +48,16 @@ const farmTiles = protomapsL.leafletLayer({
         fill: "rgb(0,180,0)",
         opacity: 0.5
       })
-    },
+    }
+  ],
+  labelRules: []
+});
+farmPolygonTiles.addTo(map);
+
+const pipelineTiles = protomapsL.leafletLayer({
+  url: PIPELINE_URL,
+  maxDataZoom: 13,
+  paintRules: [
     {
       dataLayer: "02パイプライン_Layer",
       symbolizer: new protomapsL.LineSymbolizer({
@@ -58,7 +68,7 @@ const farmTiles = protomapsL.leafletLayer({
   ],
   labelRules: []
 });
-farmTiles.addTo(map);
+pipelineTiles.addTo(map);
 
 const baseLayers = {
   "地理院標準地図": gsiStandard,
@@ -67,7 +77,8 @@ const baseLayers = {
 };
 
 const overlays = {
-  "伊那市農地タイル": farmTiles
+  "農地筆ポリゴン": farmPolygonTiles,
+  "パイプライン": pipelineTiles
 };
 
 let layerControl;
