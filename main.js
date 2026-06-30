@@ -65,7 +65,7 @@ const pipelineTiles = protomapsL.leafletLayer({
       dataLayer: "02パイプライン_Layer",
       symbolizer: new protomapsL.LineSymbolizer({
         color: "rgb(0,80,200)",
-        width: 2
+        width: 4
       })
     }
   ],
