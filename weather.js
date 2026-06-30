@@ -583,14 +583,54 @@ document.addEventListener('DOMContentLoaded', () => {
   function injectWeatherCheckbox() {
     const overlays = document.querySelector('.leaflet-control-layers-overlays');
     if (!overlays) { setTimeout(injectWeatherCheckbox, 150); return; }
+
+    /* 天気情報 チェックボックス */
     const sep = document.createElement('div');
     sep.className = 'leaflet-control-layers-separator';
     overlays.appendChild(sep);
     const lbl = document.createElement('label');
     lbl.innerHTML = '<input type="checkbox" class="leaflet-control-layers-selector" id="chkWeather"> <span>天気情報</span>';
     overlays.appendChild(lbl);
+
+    /* 気象レイヤ セクション */
+    const sep2 = document.createElement('div');
+    sep2.className = 'leaflet-control-layers-separator';
+    overlays.appendChild(sep2);
+    const wxLayerLabel = document.createElement('div');
+    wxLayerLabel.id = 'wxLayerLabel';
+    wxLayerLabel.textContent = '気象レイヤ';
+    overlays.appendChild(wxLayerLabel);
+    const wxLayersDiv = document.createElement('div');
+    wxLayersDiv.id = 'wxLayers';
+    wxLayersDiv.innerHTML = `
+      <label class="wx-chk-item" id="lblLRain"><input type="checkbox" id="chkLRain"><span class="ico">🌧</span><span>雨量現況</span></label>
+      <label class="wx-chk-item" id="lblLLand"><input type="checkbox" id="chkLLand"><span class="ico">⛰</span><span>土砂危険</span></label>
+      <label class="wx-chk-item" id="lblLFlood"><input type="checkbox" id="chkLFlood"><span class="ico">🌊</span><span>浸水危険</span></label>
+      <label class="wx-chk-item" id="lblLRiver"><input type="checkbox" id="chkLRiver"><span class="ico">🏞</span><span>河川危険度</span></label>
+      <label class="wx-chk-item" id="lblLAmedas"><input type="checkbox" id="chkLAmedas"><span class="ico">📡</span><span>アメダス</span></label>
+    `;
+    overlays.appendChild(wxLayersDiv);
+
+    /* イベントリスナー */
     document.getElementById('chkWeather').addEventListener('change', function() {
       if (this.checked) openWxPanel(); else closeWxPanel();
+    });
+    Object.keys(WX_CHK_MAP).forEach(key => {
+      document.getElementById(WX_CHK_MAP[key]).addEventListener('change', function() {
+        wxLayerState[key].on = this.checked;
+        wxApplyLayerState(key);
+      });
+    });
+    document.getElementById('chkLAmedas').addEventListener('change', function() {
+      amedasOn = this.checked;
+      document.getElementById('lblLAmedas').classList.toggle('active', amedasOn);
+      if (amedasOn) {
+        fetchAmedasMarkers();
+        amedasTimer = setInterval(fetchAmedasMarkers, 10 * 60 * 1000);
+      } else {
+        clearInterval(amedasTimer); amedasTimer = null;
+        amedasMarkers.forEach(mk => map.removeLayer(mk)); amedasMarkers = [];
+      }
     });
   }
   injectWeatherCheckbox();
@@ -605,27 +645,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chartSheet').classList.remove('open');
     _activeChartId = null;
   };
-
-  /* 気象レイヤチェックボックス */
-  Object.keys(WX_CHK_MAP).forEach(key => {
-    document.getElementById(WX_CHK_MAP[key]).addEventListener('change', function() {
-      wxLayerState[key].on = this.checked;
-      wxApplyLayerState(key);
-    });
-  });
-
-  /* AMeDASマーカーチェックボックス */
-  document.getElementById('chkLAmedas').addEventListener('change', function() {
-    amedasOn = this.checked;
-    document.getElementById('lblLAmedas').classList.toggle('active', amedasOn);
-    if (amedasOn) {
-      fetchAmedasMarkers();
-      amedasTimer = setInterval(fetchAmedasMarkers, 10 * 60 * 1000);
-    } else {
-      clearInterval(amedasTimer); amedasTimer = null;
-      amedasMarkers.forEach(mk => map.removeLayer(mk)); amedasMarkers = [];
-    }
-  });
 
   /* パネルドラッグ */
   const handle = document.getElementById('wxHandle');
