@@ -65,7 +65,7 @@ const pipelineTiles = protomapsL.leafletLayer({
       dataLayer: "02パイプライン_Layer",
       symbolizer: new protomapsL.LineSymbolizer({
         color: "rgb(0,80,200)",
-        width: 4
+        width: 2.5
       })
     }
   ],
@@ -136,7 +136,7 @@ const surveyTiles = protomapsL.leafletLayer({
         const k = feature.props["種別"];
         return !k?.startsWith("排泥処理工") && k !== "制水弁";
       },
-      symbolizer: new protomapsL.CircleSymbolizer({ radius: 2, fill: "white", opacity: 1, stroke: "black", width: 0.8 })
+      symbolizer: new protomapsL.CircleSymbolizer({ radius: 1.5, fill: "white", opacity: 1, stroke: "black", width: 0.6 })
     }
   ],
   labelRules: []
