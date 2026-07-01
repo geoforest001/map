@@ -874,6 +874,21 @@ document.addEventListener('DOMContentLoaded', () => {
     lbl.innerHTML = '<input type="checkbox" class="leaflet-control-layers-selector" id="chkWeather"> <span>ダッシュボードを開く</span>';
     overlays.appendChild(lbl);
 
+    /* ツールボックス セクション */
+    const sep3 = document.createElement('div');
+    sep3.className = 'leaflet-control-layers-separator';
+    overlays.appendChild(sep3);
+    const tbLbl = document.createElement('div');
+    tbLbl.className = 'lc-section-label';
+    tbLbl.textContent = 'ツールボックス';
+    overlays.appendChild(tbLbl);
+    const tbDiv = document.createElement('div');
+    tbDiv.id = 'tbLayers';
+    tbDiv.innerHTML = `
+      <button class="tb-btn" id="btnCurrentLoc"><span class="ico">📍</span><span>現在地</span></button>
+    `;
+    overlays.appendChild(tbDiv);
+
     /* イベントリスナー */
     document.getElementById('chkWeather').addEventListener('change', function() {
       if (this.checked) openWxPanel(); else closeWxPanel();
@@ -934,6 +949,33 @@ document.addEventListener('DOMContentLoaded', () => {
         amedasMarkers.forEach(mk => map.removeLayer(mk)); amedasMarkers = [];
       }
     });
+    /* 現在地ボタン */
+    document.getElementById('btnCurrentLoc').addEventListener('click', () => {
+      if (!navigator.geolocation) { alert('位置情報が利用できません'); return; }
+      const btn = document.getElementById('btnCurrentLoc');
+      btn.classList.add('loading');
+      navigator.geolocation.getCurrentPosition(
+        ({ coords }) => {
+          const pos = [coords.latitude, coords.longitude];
+          map.setView(pos, 15);
+          if (typeof currentLocationMarker !== 'undefined' && currentLocationMarker) map.removeLayer(currentLocationMarker);
+          currentLocationMarker = L.marker(pos, {
+            icon: L.divIcon({
+              html: '<div style="background:#1e6e42;border:3px solid #fff;border-radius:50%;width:18px;height:18px;box-shadow:0 2px 6px rgba(0,0,0,0.35)"></div>',
+              iconSize: [18, 18], iconAnchor: [9, 9], className: ''
+            })
+          }).addTo(map).bindPopup('📍 現在地').openPopup();
+          btn.classList.remove('loading');
+          btn.classList.add('active');
+        },
+        () => {
+          btn.classList.remove('loading');
+          alert('現在地を取得できませんでした');
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
   }
   injectWeatherCheckbox();
 
