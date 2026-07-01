@@ -25,7 +25,7 @@ const AM_CHART_VARS = {
   temp:    {field:'temp',            agg:'last',   idx:0,col:'rgba(255,100,0,0.8)', type:'line',files:8},
   humid:   {field:'humidity',        agg:'last',   idx:0,col:'rgba(0,160,200,0.8)', type:'line',files:8},
   wind:    {field:'wind',            agg:'avg',    idx:0,col:'rgba(80,180,0,0.8)',  type:'line',files:8},
-  winddir: {field:'wind',            agg:'dir_hist',idx:1,col:'rgba(150,100,220,0.7)',type:'bar',files:8},
+  winddir: {field:'windDirection',    agg:'dir_hist',idx:0,col:'rgba(150,100,220,0.7)',type:'bar',files:8},
   snow:    {field:'snow',            agg:'last',   idx:0,col:'rgba(150,200,255,0.7)',type:'bar',files:8},
 };
 
@@ -394,7 +394,7 @@ async function fetchAmedasChart(varKey, title) {
     if (cfg.agg === 'dir_hist') {
       const freq = new Array(17).fill(0);
       results.forEach(data => { if (!data) return; Object.values(data).forEach(d => { const raw = d[cfg.field]; const v = raw ? raw[cfg.idx] : null; if (v !== null && v !== undefined) freq[v] = (freq[v] || 0) + 1; }); });
-      w.setChart(WIND_DIR.slice(1).concat(['静穏']), freq.slice(1).concat([freq[0]]), [{ data: freq.slice(1).concat([freq[0]]), type: 'bar', backgroundColor: cfg.col, borderColor: cfg.col, borderWidth: 1 }], '気象庁 AMeDAS');
+      w.setChart(WIND_DIR.slice(1).concat(['静穏']), [{ data: freq.slice(1).concat([freq[0]]), type: 'bar', backgroundColor: cfg.col, borderColor: cfg.col, borderWidth: 1 }], '気象庁 AMeDAS');
       return;
     }
     if (cfg.agg === 'raw10m') {
