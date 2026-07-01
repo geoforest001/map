@@ -1,5 +1,5 @@
-const fallbackLocation = [36.648526, 138.194243];
-const fallbackZoom = 11;
+const fallbackLocation = [35.8294, 137.9536]; // 伊那市
+const fallbackZoom = 13;
 const currentLocationZoom = 15;
 const gsiAttribution =
   '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
@@ -157,28 +157,31 @@ function renderLayerControl() {
 
 renderLayerControl();
 
-const marker = L.marker(fallbackLocation)
-  .addTo(map)
-  .bindPopup("長野市")
-  .openPopup();
+/* ─── 現在地ボタン ─────────────────────────────── */
+let currentLocationMarker = null;
 
-if (navigator.geolocation) {
+document.getElementById('btnCurrentLoc').addEventListener('click', () => {
+  if (!navigator.geolocation) { alert('位置情報が利用できません'); return; }
+  const btn = document.getElementById('btnCurrentLoc');
+  btn.classList.add('loading');
   navigator.geolocation.getCurrentPosition(
     ({ coords }) => {
-      const currentLocation = [coords.latitude, coords.longitude];
-
-      map.setView(currentLocation, currentLocationZoom);
-      marker
-        .setLatLng(currentLocation)
-        .setPopupContent("現在地")
-        .openPopup();
+      const pos = [coords.latitude, coords.longitude];
+      map.setView(pos, currentLocationZoom);
+      if (currentLocationMarker) map.removeLayer(currentLocationMarker);
+      currentLocationMarker = L.marker(pos, {
+        icon: L.divIcon({
+          html: '<div style="background:#1e6e42;border:3px solid #fff;border-radius:50%;width:18px;height:18px;box-shadow:0 2px 6px rgba(0,0,0,0.35)"></div>',
+          iconSize: [18, 18], iconAnchor: [9, 9], className: ''
+        })
+      }).addTo(map).bindPopup('📍 現在地').openPopup();
+      btn.classList.remove('loading');
+      btn.classList.add('active');
     },
     () => {
-      map.setView(fallbackLocation, fallbackZoom);
+      btn.classList.remove('loading');
+      alert('現在地を取得できませんでした');
     },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000
-    }
+    { enableHighAccuracy: true, timeout: 10000 }
   );
-}
+});
