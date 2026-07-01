@@ -158,30 +158,4 @@ function renderLayerControl() {
 renderLayerControl();
 
 /* ─── 現在地ボタン ─────────────────────────────── */
-let currentLocationMarker = null;
-
-document.getElementById('btnCurrentLoc').addEventListener('click', () => {
-  if (!navigator.geolocation) { alert('位置情報が利用できません'); return; }
-  const btn = document.getElementById('btnCurrentLoc');
-  btn.classList.add('loading');
-  navigator.geolocation.getCurrentPosition(
-    ({ coords }) => {
-      const pos = [coords.latitude, coords.longitude];
-      map.setView(pos, currentLocationZoom);
-      if (currentLocationMarker) map.removeLayer(currentLocationMarker);
-      currentLocationMarker = L.marker(pos, {
-        icon: L.divIcon({
-          html: '<div style="background:#1e6e42;border:3px solid #fff;border-radius:50%;width:18px;height:18px;box-shadow:0 2px 6px rgba(0,0,0,0.35)"></div>',
-          iconSize: [18, 18], iconAnchor: [9, 9], className: ''
-        })
-      }).addTo(map).bindPopup('📍 現在地').openPopup();
-      btn.classList.remove('loading');
-      btn.classList.add('active');
-    },
-    () => {
-      btn.classList.remove('loading');
-      alert('現在地を取得できませんでした');
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-});
+  let currentLocationMarker = null;
