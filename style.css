@@ -206,6 +206,23 @@ body {
 .wx-chk-item.active { background: #eef4ff; border-color: #0066ff; color: #0044cc; }
 .wx-chk-item:hover  { background: #f0f4ff; }
 
+/* セクション見出し */
+.wx-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1e6e42;
+  letter-spacing: 0.04em;
+  padding: 4px 8px;
+  background: #e8f5ed;
+  border-radius: 6px;
+  border-left: 3px solid #1e6e42;
+}
+.wx-section-divider {
+  height: 1px;
+  background: #e0ebe4;
+  margin: 2px 0;
+}
+
 /* AMeDAS */
 #wxAmedasLoading {
   font-size: 12px;
